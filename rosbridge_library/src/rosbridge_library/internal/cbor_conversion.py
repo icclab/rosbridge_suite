@@ -17,6 +17,7 @@ BOOL_TYPES = ['bool']
 TIME_TYPES = ['time', 'duration']
 BOOL_ARRAY_TYPES = ['bool[]']
 BYTESTREAM_TYPES = ['uint8[]', 'char[]']
+STRING_ARRAY_TYPES = ['string[]']
 
 # Typed array tags according to <https://tools.ietf.org/html/draft-ietf-cbor-array-tags-00>
 # Always encode to little-endian variant, for now.
@@ -51,6 +52,10 @@ def extract_cbor_values(msg):
         # string
         if slot_type in STRING_TYPES:
             out[slot] = unicode(val) if PYTHON2 else str(val)  # noqa: F821
+
+        # array of strings
+        elif slot_type in STRING_ARRAY_TYPES:
+            out[slot] = [unicode(i) if PYTHON2 else str(i) for i in val]
 
         # bool
         elif slot_type in BOOL_TYPES:

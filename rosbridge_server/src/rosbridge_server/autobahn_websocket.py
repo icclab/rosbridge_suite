@@ -45,7 +45,7 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from twisted.internet import interfaces, reactor
 from zope.interface import implementer
 
-from rosbridge_library.rosbridge_protocol import RosbridgeProtocol
+from rosbridge_library.rosbridge_protocol_cbor import RosbridgeProtocolCBOR
 from rosbridge_library.util import json, bson
 
 
@@ -174,8 +174,8 @@ class RosbridgeWebSocket(WebSocketServerProtocol):
             "unregister_timeout": cls.unregister_timeout,
             "bson_only_mode": cls.bson_only_mode
         }
-        try:
-            self.protocol = RosbridgeProtocol(cls.client_id_seed, parameters=parameters)
+        try:            
+            self.protocol = RosbridgeProtocolCBOR(cls.client_id_seed, parameters=parameters)
             self.incoming_queue = IncomingQueue(self.protocol)
             self.incoming_queue.start()
             producer = OutgoingValve(self)
@@ -198,6 +198,7 @@ class RosbridgeWebSocket(WebSocketServerProtocol):
 
     def onMessage(self, message, binary):
         cls = self.__class__
+        # rospy.logwarn("Received message: %s ", str(message))
         if not binary:
             message = message.decode('utf-8')
         # check if we need to authenticate
